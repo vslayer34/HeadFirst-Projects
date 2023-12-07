@@ -1,6 +1,6 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Match Game</PageTitle>
 
 <style>
     .container {
@@ -16,10 +16,12 @@
 
 <div class="container">
     <div class="row">
-        @foreach (var animal in animalEmoji)
+        @for (int animalNumber = 0; animalNumber < shuffledAnimals.Count; animalNumber++)
         {
+            var animal = shuffledAnimals[animalNumber];
+            var uniqueDescription = $"Button #{animalNumber}";
             <div class="col-3">
-                <button type="button" class="btn btn-outline-dark">
+                <button @onclick="@(() => ClickButton(animal, uniqueDescription))" type="button" class="btn btn-outline-dark">
                     <h1>@animal</h1>
                 </button>
             </div>
@@ -54,5 +56,34 @@
         shuffledAnimals = animalEmoji
             .OrderBy(item => random.Next())
             .ToList();
+    }
+
+    string lastAnimalFound = string.Empty;
+    string lastDescription = string.Empty;
+
+    private void ClickButton(string animal, string animalDescription)
+    {
+        if (lastAnimalFound == string.Empty)
+        {
+            // First selection
+            lastAnimalFound = animal;
+            lastDescription = animalDescription;
+        }
+        else if (lastAnimalFound == animal && animalDescription != lastDescription)
+        {
+            // Found new match!
+            lastAnimalFound = string.Empty;
+
+            // Replace matched animals with empty string to hid them
+            shuffledAnimals = shuffledAnimals
+                .Select(a => a.Replace(animal, string.Empty))
+                .ToList();
+        }
+        else
+        {
+            // reset selection if user didn't click
+            // on a match
+            lastAnimalFound = string.Empty;
+        }
     }
 }
